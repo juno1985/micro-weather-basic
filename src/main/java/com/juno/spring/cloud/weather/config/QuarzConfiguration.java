@@ -13,6 +13,8 @@ import com.juno.spring.cloud.weather.job.WeatherDataSyncJob;
 @Configuration
 public class QuarzConfiguration {
 
+	private static final int INTERVAL = 1800;
+	
 	//JobDetail
 	@Bean
 	public JobDetail weatherDataSyncJobDetail() {
@@ -23,7 +25,7 @@ public class QuarzConfiguration {
 	@Bean
 	public Trigger weatherDataSyncTrigger() {
 		//每两秒执行
-		SimpleScheduleBuilder schedBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(2).repeatForever();
+		SimpleScheduleBuilder schedBuilder = SimpleScheduleBuilder.simpleSchedule().withIntervalInSeconds(INTERVAL).repeatForever();
 		return TriggerBuilder.newTrigger().forJob(weatherDataSyncJobDetail())
 				.withIdentity("weatherDataSyncTrigger").withSchedule(schedBuilder).build();
 	}

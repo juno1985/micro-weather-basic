@@ -1,5 +1,6 @@
 package com.juno.spring.cloud.weather.service;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.juno.spring.cloud.weather.vo.City;
 import com.juno.spring.cloud.weather.vo.WeatherResponse;
 @Service
 public class WeatherDataServiceImpl implements WeatherDataService {
@@ -26,6 +28,8 @@ public class WeatherDataServiceImpl implements WeatherDataService {
 	private RestTemplate restTemplate;
 	@Autowired
 	private StringRedisTemplate stringRedisTemplate; 
+	@Autowired
+	private CitiDataService citiDataService;
 
 	@Override
 	public WeatherResponse getDataByCityId(String cityId) {
@@ -69,6 +73,32 @@ public class WeatherDataServiceImpl implements WeatherDataService {
 		} 
 		
 		return resp;
+	}
+
+	@Override
+	public void syncDataToRedis() {
+		try {
+			List<City> cityList = citiDataService.listCity();
+			for(City city:cityList) {
+				String id = city.getCityId();
+				saveDataToRedis(id);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void saveDataToRedis(String cityId) {
+		String uri = WEATHER_URI + "citykey=" + cityId;
+		ResponseEntity<String> wresp = restTemplate.getForEntity(uri, String.class);
+		String key = cityId;
+		if (wresp.getStatusCodeValue() == 200) {
+			ValueOperations<String, String> ops = stringRedisTemplate.opsForValue();
+			String respStr = wresp.getBody();
+			ops.set(key, respStr, timeout, TimeUnit.SECONDS);
+			logger.info("buffer city data into redis,citi id is " + cityId);
+		}
+		
 	}
 
 }
