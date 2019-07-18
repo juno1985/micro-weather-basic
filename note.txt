@@ -1,1 +1,39 @@
-http://wthrcdn.etouch.cn/weather_mini?city=深圳
+如何设计微服务
+1. 服务拆分(横向拆分、纵向拆分)
+2. 服务注册
+3. 服务发现
+4. 服务消费
+5. 统一入口
+6. 配置管理
+7. 熔断机制
+8. 自动扩展
+
+collection-eureka-feign 缓存redis
+data-eureka	查询redis,redis没有的话直接抛出异常
+report-eureka-feign	前端展现
+city-eureka	从xml获取城市列表
+
+eureka-server 其他的微服務作为eureka client
+
+指定端口启动springboot的jar
+java -jar xxxx.jar --server.port=8081
+
+服务注册与发现
+Eureka Server
+Eureka Client
+
+@EnableDiscoveryClient
+
+微服务-常见消费者
+1. Apache HttpClient(可以使用RestTemplate)
+2. Ribbon(实现客户端负载均衡)
+	a. maven中需要添加依赖
+3. Feign
+	a. maven中需要添加依赖
+	b. springboot启动类使用
+		@EnableDiscoveryClient
+		@EnableFeignClients
+	c. service的接口中使用
+		类注解@FeignClient("mas-weather-city-eureka")<-要被消费的应用名称
+		方法注解@GetMapping("/cities")
+
