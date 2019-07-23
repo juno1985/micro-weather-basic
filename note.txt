@@ -36,4 +36,24 @@ Eureka Client
 	c. service的接口中使用
 		类注解@FeignClient("mas-weather-city-eureka")<-要被消费的应用名称
 		方法注解@GetMapping("/cities")
-
+		
+如何集成Zuul
+1. 导入maven依赖
+2. 主类上添加 @EnbleZuulProxy
+3. 修改application.properties
+	zuul.routes.hi.path=/hi/**
+	zuul.routes.hi.serviceId=应用名称
+-----------------配置集中化,可以读取github上保存的公共配置文件-----------------
+创建配置中心服务端
+1. 导入maven依赖 spring-cloud-config-server
+2. 启动类添加 @EnableConfigServer
+3. application.properties中添加
+	#github上的一个仓库连接
+	spring.cloud.config.server.git.uri=xxxxxxxxxxxxxxxxxxxx
+	#仓库下面的一个文件夹名称
+	spring.cloud.config.server.git.searchPaths=xxxxxxxxxxxxxxxxx
+创建配置中心客户端
+1. 导入maven依赖spring-cloud-config-client
+2. application.properties中添加
+	spring.cloud.config.profile=dev
+	spring.cloud.config.uri=xxxxxxxxxxxxxxx
